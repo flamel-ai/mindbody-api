@@ -65,8 +65,5 @@
     "lint": "pnpm tsc --noEmit --skipLibCheck & eslint \"./src/**/*.ts\"",
     "version": "pnpm build && git add .",
     "postversion": "git push && git push --tags && rm -rf build/temp"
-  },
-  "publishConfig": {
-    "@flamel-ai:registry": "https://gitlab.com/api/v4/projects/mindbody-api/packages/npm/"
   }
 }
