@@ -7,6 +7,6 @@ stages:
 publish-npm:
   stage: deploy
   script:
-    - echo "@flamel-ai:registry=https://gitlab.com/api/v4/projects/mindbody-api/packages/npm/" > .npmrc
-    - echo "//gitlab.com/api/v4/projects/mindbody-api/packages/npm/:_authToken=${NPM_DEPLOY_TOKEN}" >> .npmrc
+    - echo "@flamel-ai:registry=https://${CI_SERVER_HOST}/api/v4/projects/${CI_PROJECT_ID}/packages/npm/" > .npmrc
+    - echo "//${CI_SERVER_HOST}/api/v4/projects/${CI_PROJECT_ID}/packages/npm/:_authToken=${CI_JOB_TOKEN}" >> .npmrc
     - npm publish
