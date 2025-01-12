@@ -12,4 +12,4 @@ publish-npm:
     - pnpm build
     - echo "@flamel-ai:registry=https://${CI_SERVER_HOST}/api/v4/projects/${CI_PROJECT_ID}/packages/npm/" > .npmrc
     - echo "//${CI_SERVER_HOST}/api/v4/projects/${CI_PROJECT_ID}/packages/npm/:_authToken=${CI_JOB_TOKEN}" >> .npmrc
-    - pnpm publish
+    - pnpm publish --no-git-checks
