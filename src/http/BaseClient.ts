@@ -70,11 +70,16 @@ export class BaseClient {
     return headers;
   }
 
-  protected async authHeaders(siteID: string): Promise<Required<Headers>> {
-    const staffToken = await this.getStaffToken(siteID);
+  protected async authHeaders(siteID: string | undefined, accessToken?: string): Promise<Required<Headers>> {
+
+    if (!accessToken && !siteID) {
+      throw new Error('Site ID is required when no staff token provided');
+    }
+
+    const token = accessToken ?? await this.getStaffToken(siteID as string);
     return {
       ...this.basicHeaders(siteID),
-      Authorization: 'Bearer ' + staffToken,
+      Authorization: 'Bearer ' + token,
     };
   }
 

@@ -1,0 +1,12 @@
+default:
+  image: node:latest
+
+stages:
+  - deploy
+
+publish-npm:
+  stage: deploy
+  script:
+    - echo "@flamel-ai:registry=https://gitlab.com/api/v4/projects/mindbody-api/packages/npm/" > .npmrc
+    - echo "//gitlab.com/api/v4/projects/mindbody-api/packages/npm/:_authToken=${NPM_DEPLOY_TOKEN}" >> .npmrc
+    - npm publish

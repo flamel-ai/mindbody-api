@@ -3,6 +3,7 @@ export type MindbodyConfig = {
   apiKey?: string;
   username?: string;
   password?: string;
+  token?: string;
 };
 
 let CONFIG = {} as MindbodyConfig;
@@ -29,11 +30,19 @@ let FULL_CREDENTIALS_PROVIDED = false;
  * ```
  */
 export default class Config {
-  private constructor() {}
+  private constructor() { }
 
   public static setup(config: MindbodyConfig): void {
     CONFIG = config;
+
+    // Username and password authentication
     if (config.username != null && config.password != null) {
+      FULL_CREDENTIALS_PROVIDED = true;
+    }
+
+    // Access token authentication (acquired via OAuth 2.0 flow)
+    // Docs: https://developers.mindbodyonline.com/ui/documentation/public-api#/http/mindbody-public-api-v6-0/authentication/oauth
+    if (config.token != null) {
       FULL_CREDENTIALS_PROVIDED = true;
     }
   }

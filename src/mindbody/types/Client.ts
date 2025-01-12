@@ -23,6 +23,7 @@ export type Client = {
   ClientIndexes: AssignedClientIndex[];
   ClientRelationships: ClientRelationship[];
   FirstAppointmentDate: Nullable<string>;
+  FirstClassDate: Nullable<string>;
   FirstName: string;
   Id: string;
   IsCompany: boolean;

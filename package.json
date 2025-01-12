@@ -1,12 +1,16 @@
 {
-  "name": "mindbody-api-v6",
+  "name": "@flamel-ai/mindbody-api",
   "version": "0.3.1",
   "description": "Type safe library for interacting with Mindbody's Public API (v6) and Webhooks",
-  "author": "Kyle Surowiec <kyle@splitpass.com>",
+  "author": "Matt Sichterman <matt@flamel.ai>",
   "contributors": [
+    "Kyle Surowiec <kyle@splitpass.com>",
     "Ben ElDarragi <ben@splitpass.com>"
   ],
-  "repository": "github:splitpass/mindbody-api",
+  "repository": {
+    "type": "git",
+    "url": "git+https://gitlab.com/flamel-ai/mindbody-api/"
+  },
   "license": "MIT",
   "type": "module",
   "keywords": [
@@ -61,5 +65,8 @@
     "lint": "pnpm tsc --noEmit --skipLibCheck & eslint \"./src/**/*.ts\"",
     "version": "pnpm build && git add .",
     "postversion": "git push && git push --tags && rm -rf build/temp"
+  },
+  "publishConfig": {
+    "@flamel-ai:registry": "https://gitlab.com/api/v4/projects/mindbody-api/packages/npm/"
   }
 }
