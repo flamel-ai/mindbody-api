@@ -1,6 +1,6 @@
 {
   "name": "@flamel-ai/mindbody-api",
-  "version": "0.3.1",
+  "version": "0.0.1",
   "description": "Type safe library for interacting with Mindbody's Public API (v6) and Webhooks",
   "author": "Matt Sichterman <matt@flamel.ai>",
   "contributors": [
