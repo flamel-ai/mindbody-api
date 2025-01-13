@@ -1,6 +1,6 @@
 {
   "name": "@flamel-ai/mindbody-api",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Type safe library for interacting with Mindbody's Public API (v6) and Webhooks",
   "author": "Matt Sichterman <matt@flamel.ai>",
   "contributors": [
@@ -26,9 +26,10 @@
   "types": "dist/types.d.ts",
   "exports": {
     ".": {
+      "types": "./dist/types.d.ts",
       "require": "./dist/cjs/index.cjs",
       "import": "./dist/esm/index.mjs",
-      "types": "./dist/types.d.ts"
+      "default": "./dist/esm/index.mjs"
     }
   },
   "files": [
@@ -44,7 +45,7 @@
     "@rollup/plugin-commonjs": "^28.0.2",
     "@rollup/plugin-node-resolve": "^16.0.0",
     "axios": "1.6.0",
-    "p-limit": "^6.2.0"
+    "p-limit": "^4.0.0"
   },
   "devDependencies": {
     "@rollup/plugin-typescript": "^11.1.6",
