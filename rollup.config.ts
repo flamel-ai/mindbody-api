@@ -17,12 +17,6 @@ export default [
         },
         exports: 'named',
       },
-      {
-        file: 'dist/cjs/index.cjs',
-        format: 'cjs',
-        exports: 'named',
-        interop: 'auto', // Add this
-      },
     ],
     plugins: [
       nodeResolve({
