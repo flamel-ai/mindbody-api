@@ -41,8 +41,10 @@
     "node": ">=12.4"
   },
   "dependencies": {
+    "@rollup/plugin-commonjs": "^28.0.2",
+    "@rollup/plugin-node-resolve": "^16.0.0",
     "axios": "1.6.0",
-    "p-limit": "6.0.0"
+    "p-limit": "^6.2.0"
   },
   "devDependencies": {
     "@rollup/plugin-typescript": "^11.1.6",
