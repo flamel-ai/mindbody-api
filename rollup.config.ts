@@ -1,8 +1,6 @@
 import cleanup from 'rollup-plugin-cleanup';
 import dts from 'rollup-plugin-dts';
 import typescript from '@rollup/plugin-typescript';
-import commonjs from '@rollup/plugin-commonjs';
-import nodeResolve from '@rollup/plugin-node-resolve';
 
 export default [
   {
@@ -17,14 +15,13 @@ export default [
         },
         exports: 'named',
       },
+      {
+        file: 'dist/cjs/index.cjs',
+        format: 'cjs',
+        exports: 'named',
+      },
     ],
     plugins: [
-      nodeResolve({
-        preferBuiltins: true,
-      }),
-      commonjs({
-        include: /node_modules/,
-      }),
       typescript(),
       cleanup({
         comments: 'none',
