@@ -57,6 +57,17 @@ export default class Config {
     return CONFIG.apiKey;
   }
 
+
+  public static getAccessToken(): string {
+    if (CONFIG.token == null) {
+      throw Error(
+        'Config.setup({ token: <token> }) requires at least an access token to interact with endpoints',
+      );
+    }
+
+    return CONFIG.token;
+  }
+
   public static get(): MindbodyConfig {
     if (
       CONFIG.username == null ||

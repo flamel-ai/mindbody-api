@@ -45,7 +45,9 @@ export class BaseClient {
     );
   }
 
-  protected async request(siteID: string): Promise<[AxiosInstance, Headers]> {
+  protected async request(
+    siteID: string | undefined
+  ): Promise<[AxiosInstance, Headers]> {
     const headers = Config.isFullCredentialsProvided()
       ? await this.authHeaders(siteID)
       : this.basicHeaders(siteID);
@@ -70,10 +72,15 @@ export class BaseClient {
     return headers;
   }
 
-  protected async authHeaders(siteID: string | undefined, accessToken?: string): Promise<Required<Headers>> {
+  protected async authHeaders(siteID?: string): Promise<Required<Headers>> {
+    let accessToken = "";
 
-    if (!accessToken && !siteID) {
-      throw new Error('Site ID is required when no staff token provided');
+    if (!siteID) {
+      try {
+        accessToken = Config.getAccessToken();
+      } catch (error) {
+        throw new Error('Access token is required when no site ID provided');
+      }
     }
 
     const token = accessToken ?? await this.getStaffToken(siteID as string);
