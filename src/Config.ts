@@ -1,5 +1,3 @@
-import type { StaffUserToken } from "$mindbody/types";
-
 /* eslint-disable @typescript-eslint/no-extraneous-class */
 export type MindbodyConfig = {
   apiKey?: string;

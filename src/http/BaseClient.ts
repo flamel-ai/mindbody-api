@@ -5,11 +5,9 @@ import type { WebhookErrorResponse } from '$webhooks/types/WebhookErrorResponse'
 import axios, { AxiosError } from 'axios';
 import Config from '$Config';
 import MindbodyError from '$http/MindbodyError';
-import type { StaffUserToken } from '../mindbody/types';
 
 const API_BASE_URL = 'https://api.mindbodyonline.com/public/v6';
 const WEBHOOKS_BASE_URL = 'https://mb-api.mindbodyonline.com/push/api/v1';
-const TWENTY_FOUR_HOURS = 3600 * 1000 * 24;
 
 export class BaseClient {
   protected client: AxiosInstance;
@@ -47,7 +45,7 @@ export class BaseClient {
 
   protected async request(
     siteID: string,
-    staffToken?: StaffUserToken,
+    staffToken?: TokenResponse,
   ): Promise<[AxiosInstance, Headers]> {
     const headers = staffToken
       ? await this.authHeaders(siteID, staffToken)
@@ -73,11 +71,11 @@ export class BaseClient {
     return headers;
   }
 
-  protected async authHeaders(siteID: string, staffToken: StaffUserToken): Promise<Required<Headers>> {
+  protected async authHeaders(siteID: string, staffToken: TokenResponse): Promise<Required<Headers>> {
     const token = await this.getStaffToken(siteID, staffToken);
     return {
       ...this.basicHeaders(siteID),
-      Authorization: 'Bearer ' + token,
+      Authorization: 'Bearer ' + token.AccessToken,
     };
   }
 
@@ -89,29 +87,26 @@ export class BaseClient {
    * @param staffToken - The staff token to use, may or may not be expired
    * @returns The active staff token
    */
-  private async getStaffToken(siteID: string, staffToken: StaffUserToken): Promise<StaffUserToken> {
+  private async getStaffToken(siteID: string, staffToken: TokenResponse): Promise<TokenResponse> {
     if (!staffToken) {
       throw new Error('Staff token is required');
     }
 
     // If the token is expired, we need to renew it
-    if (staffToken.expirationDate > new Date(Date.now())) {
-      const res = await this.client.post<TokenResponse>(
+    if (new Date(staffToken.Expires) > new Date(Date.now())) {
+      const res = (await this.client.post<TokenResponse>(
         '/usertoken/renew',
         {
           SiteId: siteID,
-          Authorization: 'Bearer ' + staffToken.token,
+          Authorization: 'Bearer ' + staffToken.AccessToken,
         },
         {
           headers: this.basicHeaders(siteID),
         },
-      );
+      ))?.data;
 
       // Return the new token
-      return {
-        token: res.data.AccessToken,
-        expirationDate: new Date(Date.now() + TWENTY_FOUR_HOURS),
-      };
+      return res;
     }
 
     // Return the exisating token
