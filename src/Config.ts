@@ -1,9 +1,11 @@
+import type { StaffUserToken } from "$mindbody/types";
+
 /* eslint-disable @typescript-eslint/no-extraneous-class */
 export type MindbodyConfig = {
   apiKey?: string;
   username?: string;
   password?: string;
-  staffToken?: StaffToken;
+  staffToken?: StaffUserToken;
 };
 
 let CONFIG = {} as MindbodyConfig;
@@ -30,11 +32,6 @@ let FULL_CREDENTIALS_PROVIDED = false;
  * ```
  */
 
-type StaffToken =
-  | {
-    token: string;
-    expirationDate: Date;
-  } | undefined;
 export default class Config {
   private constructor() { }
 
@@ -62,7 +59,7 @@ export default class Config {
     return CONFIG.apiKey;
   }
 
-  public static getStaffToken(): StaffToken {
+  public static getStaffToken(): StaffUserToken {
     if (CONFIG.staffToken == null) {
       throw Error(
         'Config.setup({ staffToken: <token> }) requires at least a staff token to interact with endpoints',

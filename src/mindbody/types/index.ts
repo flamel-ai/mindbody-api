@@ -68,6 +68,7 @@ export * from '$mindbody/types/ShoppingCartItemMetadata';
 export * from '$mindbody/types/Site';
 export * from '$mindbody/types/Staff';
 export * from '$mindbody/types/StaffImageURL';
+export * from '$mindbody/types/StaffUserToken';
 export * from '$mindbody/types/SubCategory';
 export * from '$mindbody/types/Timecards';
 export * from '$mindbody/types/Tips';
