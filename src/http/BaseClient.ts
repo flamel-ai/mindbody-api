@@ -46,7 +46,7 @@ export class BaseClient {
   }
 
   protected async request(
-    siteID: string | undefined
+    siteID: string
   ): Promise<[AxiosInstance, Headers]> {
     const headers = Config.isFullCredentialsProvided()
       ? await this.authHeaders(siteID)
@@ -72,29 +72,41 @@ export class BaseClient {
     return headers;
   }
 
-  protected async authHeaders(siteID?: string): Promise<Required<Headers>> {
-    let accessToken = "";
-
-    if (!siteID) {
-      try {
-        accessToken = Config.getAccessToken();
-      } catch (error) {
-        throw new Error('Access token is required when no site ID provided');
-      }
-    }
-
-    const token = accessToken ?? await this.getStaffToken(siteID as string);
+  protected async authHeaders(siteID: string): Promise<Required<Headers>> {
+    const staffToken = await this.getStaffToken(siteID);
     return {
       ...this.basicHeaders(siteID),
-      Authorization: 'Bearer ' + token,
+      Authorization: 'Bearer ' + staffToken,
     };
   }
 
   private async getStaffToken(siteID: string): Promise<string> {
     const cacheKey: TokenCache.CacheKey = `site_id:${siteID}`;
-    const cachedToken = TokenCache.get(cacheKey);
+    const cachedToken = TokenCache.get(cacheKey) || Config.getStaffToken();
 
     if (cachedToken != null) {
+      // If the token is expired, we need to renew it
+      if (cachedToken.expirationDate > new Date(Date.now())) {
+        const res = await this.client.post<TokenResponse>(
+          '/usertoken/renew',
+          {
+            SiteId: siteID,
+            Authorization: 'Bearer ' + cachedToken.token,
+          },
+          {
+            headers: this.basicHeaders(siteID),
+          },
+        );
+        TokenCache.set(cacheKey, {
+          token: res.data.AccessToken,
+          expirationDate: new Date(Date.now() + TWENTY_FOUR_HOURS),
+        });
+
+        // Return the new token
+        return res.data.AccessToken;
+      }
+
+      // Return the cached token
       return cachedToken.token;
     }
 

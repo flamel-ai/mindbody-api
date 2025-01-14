@@ -3,7 +3,7 @@ export type MindbodyConfig = {
   apiKey?: string;
   username?: string;
   password?: string;
-  token?: string;
+  staffToken?: StaffToken;
 };
 
 let CONFIG = {} as MindbodyConfig;
@@ -29,20 +29,25 @@ let FULL_CREDENTIALS_PROVIDED = false;
  * Config.setup({ apiKey: 'api-key', username: 'username', password: 'password' });
  * ```
  */
+
+type StaffToken =
+  | {
+    token: string;
+    expirationDate: Date;
+  } | undefined;
 export default class Config {
   private constructor() { }
 
   public static setup(config: MindbodyConfig): void {
     CONFIG = config;
 
-    // Username and password authentication
+    // Username/password credentials sets the in-memory token value in cache
     if (config.username != null && config.password != null) {
       FULL_CREDENTIALS_PROVIDED = true;
     }
 
-    // Access token authentication (acquired via OAuth 2.0 flow)
-    // Docs: https://developers.mindbodyonline.com/ui/documentation/public-api#/http/mindbody-public-api-v6-0/authentication/oauth
-    if (config.token != null) {
+    // Existing staff tokens can be applied to the config, which allows for server-side caching
+    if (config.staffToken != null) {
       FULL_CREDENTIALS_PROVIDED = true;
     }
   }
@@ -57,25 +62,29 @@ export default class Config {
     return CONFIG.apiKey;
   }
 
-
-  public static getAccessToken(): string {
-    if (CONFIG.token == null) {
+  public static getStaffToken(): StaffToken {
+    if (CONFIG.staffToken == null) {
       throw Error(
-        'Config.setup({ token: <token> }) requires at least an access token to interact with endpoints',
+        'Config.setup({ staffToken: <token> }) requires at least a staff token to interact with endpoints',
       );
     }
 
-    return CONFIG.token;
+    return CONFIG.staffToken;
   }
 
   public static get(): MindbodyConfig {
+    if (CONFIG.apiKey == null) {
+      throw Error(
+        'Config.setup({...}) requires an API key to be provided',
+      );
+    }
+
     if (
-      CONFIG.username == null ||
-      CONFIG.password == null ||
-      CONFIG.apiKey == null
+      (CONFIG.username == null || CONFIG.password == null) &&
+      CONFIG.staffToken == null
     ) {
       throw Error(
-        'Config.setup({...}) requires all fields to be provided to generate a staff token',
+        'Config.setup({...}) requires either username/password or a staff token to be provided',
       );
     }
 
