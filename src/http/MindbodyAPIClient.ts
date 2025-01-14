@@ -27,7 +27,7 @@ export class MindbodyAPIClient extends BaseClient {
     endpoint: string,
     args: RequestArgsGet<Kv> | RequestArgsGetOptionalParams<Kv>,
   ): Promise<R> {
-    const [client, headers] = await this.request(args.siteID);
+    const [client, headers] = await this.request(args.siteID, args.staffToken);
     const res = await client<R>(endpoint, {
       method: 'GET',
       headers,
@@ -43,7 +43,7 @@ export class MindbodyAPIClient extends BaseClient {
       objectIndexKey: string;
     },
   ): Promise<PaginatedResponse<R>> {
-    const [client, headers] = await this.request(args.siteID);
+    const [client, headers] = await this.request(args.siteID, args.staffToken);
     const res = await client<PaginatedResponse<R>>(endpoint, {
       method: 'GET',
       headers,
@@ -68,7 +68,7 @@ export class MindbodyAPIClient extends BaseClient {
     endpoint: string,
     args: RequestArgsPost<Kv>,
   ): Promise<R> {
-    const [client, headers] = await this.request(args.siteID);
+    const [client, headers] = await this.request(args.siteID, args.staffToken);
     const res = await client<R>(endpoint, {
       method: 'POST',
       headers,
@@ -82,7 +82,7 @@ export class MindbodyAPIClient extends BaseClient {
     endpoint: string,
     args: RequestArgsPost<Kv>,
   ): Promise<R> {
-    const [client, headers] = await this.request(args.siteID);
+    const [client, headers] = await this.request(args.siteID, args.staffToken);
     const res = await client<R>(endpoint, {
       method: 'PUT',
       headers,
@@ -100,7 +100,7 @@ export class MindbodyAPIClient extends BaseClient {
     endpoint: string,
     args: RequestArgsDelete<Kv>,
   ): Promise<boolean> {
-    const [client, headers] = await this.request(args.siteID);
+    const [client, headers] = await this.request(args.siteID, args.staffToken);
     const res = await client.delete(endpoint, {
       method: 'DELETE',
       headers,

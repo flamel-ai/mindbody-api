@@ -5,7 +5,7 @@ import type { WebhookErrorResponse } from '$webhooks/types/WebhookErrorResponse'
 import axios, { AxiosError } from 'axios';
 import Config from '$Config';
 import MindbodyError from '$http/MindbodyError';
-import * as TokenCache from '$http/TokenCache';
+import type { StaffUserToken } from '../mindbody/types';
 
 const API_BASE_URL = 'https://api.mindbodyonline.com/public/v6';
 const WEBHOOKS_BASE_URL = 'https://mb-api.mindbodyonline.com/push/api/v1';
@@ -46,10 +46,11 @@ export class BaseClient {
   }
 
   protected async request(
-    siteID: string
+    siteID: string,
+    staffToken?: StaffUserToken,
   ): Promise<[AxiosInstance, Headers]> {
-    const headers = Config.isFullCredentialsProvided()
-      ? await this.authHeaders(siteID)
+    const headers = staffToken
+      ? await this.authHeaders(siteID, staffToken)
       : this.basicHeaders(siteID);
 
     return [this.client, headers];
@@ -72,68 +73,48 @@ export class BaseClient {
     return headers;
   }
 
-  protected async authHeaders(siteID: string): Promise<Required<Headers>> {
-    const staffToken = await this.getStaffToken(siteID);
+  protected async authHeaders(siteID: string, staffToken: StaffUserToken): Promise<Required<Headers>> {
+    const token = await this.getStaffToken(siteID, staffToken);
     return {
       ...this.basicHeaders(siteID),
-      Authorization: 'Bearer ' + staffToken,
+      Authorization: 'Bearer ' + token,
     };
   }
 
-  private async getStaffToken(siteID: string): Promise<string> {
-    const cacheKey: TokenCache.CacheKey = `site_id:${siteID}`;
-    const cachedToken = TokenCache.get(cacheKey) || Config.getStaffToken();
-
-    if (cachedToken != null) {
-      // If the token is expired, we need to renew it
-      if (cachedToken.expirationDate > new Date(Date.now())) {
-        const res = await this.client.post<TokenResponse>(
-          '/usertoken/renew',
-          {
-            SiteId: siteID,
-            Authorization: 'Bearer ' + cachedToken.token,
-          },
-          {
-            headers: this.basicHeaders(siteID),
-          },
-        );
-        TokenCache.set(cacheKey, {
-          token: res.data.AccessToken,
-          expirationDate: new Date(Date.now() + TWENTY_FOUR_HOURS),
-        });
-
-        // Return the new token
-        return res.data.AccessToken;
-      }
-
-      // Return the cached token
-      return cachedToken.token;
+  /**
+   * If the provided staff token is expired, it will be renewed.
+   * If the provided staff token is not expired, it will be returned.
+   *
+   * @param siteID - The site ID to get the staff token for
+   * @param staffToken - The staff token to use, may or may not be expired
+   * @returns The active staff token
+   */
+  private async getStaffToken(siteID: string, staffToken: StaffUserToken): Promise<StaffUserToken> {
+    if (!staffToken) {
+      throw new Error('Staff token is required');
     }
 
-    const config = Config.get();
-    const res = await this.client.post<TokenResponse>(
-      '/usertoken/issue',
-      {
-        Username: config.username,
-        Password: config.password,
-      },
-      {
-        headers: this.basicHeaders(siteID),
-      },
-    );
+    // If the token is expired, we need to renew it
+    if (staffToken.expirationDate > new Date(Date.now())) {
+      const res = await this.client.post<TokenResponse>(
+        '/usertoken/renew',
+        {
+          SiteId: siteID,
+          Authorization: 'Bearer ' + staffToken.token,
+        },
+        {
+          headers: this.basicHeaders(siteID),
+        },
+      );
 
-    // Tokens expire after 7 days of inactivity but we'll
-    // fetch a new one after 24 hours to cycle more often
-    //
-    // Since these are stored in memory you'll likely be fetching new ones
-    // more frequently anyways due to server restarts
-    //
-    // https://developers.mindbodyonline.com/PublicDocumentation/V6#user-tokens
-    TokenCache.set(cacheKey, {
-      token: res.data.AccessToken,
-      expirationDate: new Date(Date.now() + TWENTY_FOUR_HOURS),
-    });
+      // Return the new token
+      return {
+        token: res.data.AccessToken,
+        expirationDate: new Date(Date.now() + TWENTY_FOUR_HOURS),
+      };
+    }
 
-    return res.data.AccessToken;
+    // Return the exisating token
+    return staffToken;
   }
 }

@@ -8,6 +8,13 @@ import { BaseClient } from '$http/BaseClient';
 
 type Returnable = Kv | (string | number)[];
 
+/**
+ * This client is used to make requests to the Mindbody Webhooks API.
+ *
+ * TODO: 1/14/25 - Add support for staff tokens if necessary
+ *
+ * https://developers.mindbodyonline.com/ui/documentation/webhooks-api
+ */
 export class MindbodyWebhooksClient extends BaseClient {
   private static instance?: MindbodyWebhooksClient = new this();
 
