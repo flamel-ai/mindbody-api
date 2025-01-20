@@ -72,7 +72,9 @@ export class BaseClient {
   }
 
   protected async authHeaders(siteID: string, staffToken: TokenResponse): Promise<Required<Headers>> {
+    console.log("Attempting to get staff token", staffToken);
     const token = await this.getStaffToken(siteID, staffToken);
+    console.log("Got staff token", token);
     return {
       ...this.basicHeaders(siteID),
       Authorization: 'Bearer ' + token.AccessToken,
@@ -93,15 +95,15 @@ export class BaseClient {
     }
 
     // If the token is expired, we need to renew it
-    if (new Date(staffToken.Expires) > new Date(Date.now())) {
+    if (new Date(staffToken.Expires) < new Date(Date.now())) {
       const res = (await this.client.post<TokenResponse>(
         '/usertoken/renew',
+        {},
         {
-          SiteId: siteID,
-          Authorization: 'Bearer ' + staffToken.AccessToken,
-        },
-        {
-          headers: this.basicHeaders(siteID),
+          headers: {
+            ...this.basicHeaders(siteID),
+            Authorization: 'Bearer ' + staffToken.AccessToken,
+          },
         },
       ))?.data;
 
