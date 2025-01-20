@@ -72,9 +72,7 @@ export class BaseClient {
   }
 
   protected async authHeaders(siteID: string, staffToken: TokenResponse): Promise<Required<Headers>> {
-    console.log("Attempting to get staff token", staffToken);
     const token = await this.getStaffToken(siteID, staffToken);
-    console.log("Got staff token", token);
     return {
       ...this.basicHeaders(siteID),
       Authorization: 'Bearer ' + token.AccessToken,
